@@ -1,0 +1,25 @@
+// change the width of the image
+  // const [scale, setScale] = React.useState(100);
+  // // console.log(`${scale}%`);
+  // const root = document.getElementById("root");
+  // React.useEffect(() => {
+  //   root.addEventListener(
+  //     "wheel",
+  //     (event) => {
+  //       if (event.ctrlKey) {
+  //         event.preventDefault();
+  //         // console.log(event.wheelDelta);
+  //         if (event.wheelDelta > 0.3) {
+  //           setScale((prevScale) => {
+  //             return (prevScale += 1);
+  //           });
+  //         } else {
+  //           setScale((prevScale) => {
+  //             return (prevScale -= 0.3);
+  //           });
+  //         }
+  //       }
+  //     },
+  //     true
+  //   );
+  // }, [scale]);

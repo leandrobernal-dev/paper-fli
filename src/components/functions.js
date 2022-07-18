@@ -1,0 +1,249 @@
+import React from "react";
+import { saveAs } from "file-saver";
+import domtoimage from "dom-to-image-more";
+import $ from "jquery";
+
+// save the image
+export async function SaveImage() {
+  document.querySelectorAll(".active-text").forEach((textEl) => {
+    textEl.classList.remove("active-text");
+  });
+  domtoimage
+    .toBlob(document.getElementById("output-image"))
+    .then(function (blob) {
+      window.saveAs(blob, "your-image.png");
+    });
+  await reHighlight();
+  function reHighlight() {
+    setTimeout(() => {
+      $(".output-image h1")[0].classList.add("active-text");
+    }, 10);
+  }
+}
+// generate new image onClick()
+export function GetNewImage(category, allImages, updateImage, setPrevImages) {
+  if (category == "inspirational") {
+    const randomImage = Math.floor(Math.random() * allImages.length);
+    const url = allImages[randomImage].src.large;
+    // console.log(allImages);
+
+    updateImage((prevMeme) => {
+      return { ...prevMeme, randomImage: url };
+    });
+    savePreviousImage(url);
+  } else {
+    const randomImage = Math.floor(Math.random() * allImages.length);
+    const url = allImages[randomImage].url;
+    // console.log(allImages);
+
+    updateImage((prevMeme) => {
+      return { ...prevMeme, randomImage: url };
+    });
+    savePreviousImage(url);
+  }
+  function savePreviousImage(src) {
+    setPrevImages((prev) => {
+      const newArr = prev;
+      newArr.unshift(newArr.pop());
+      newArr[0].prevImg = src;
+      return newArr;
+    });
+  }
+}
+// highlight the last text element onload() and when removing and adding new text
+export function Highlight(inputOutput, updateSettingsValue) {
+  if (inputOutput.length > 0) {
+    $(".text-style-settings-container")[0].classList.remove("disabled");
+    document.querySelectorAll(".active-text").forEach((textEl) => {
+      textEl.classList.remove("active-text");
+    });
+
+    const numberOfText = document.querySelectorAll(".text-element").length;
+    document
+      .querySelectorAll(".text-element")
+      [numberOfText - 1].querySelector("h1")
+      .classList.add("active-text");
+    updateSettingsValue();
+  } else {
+    $(".text-style-settings-container")[0].classList.add("disabled");
+  }
+}
+// update the text style settings value to the value of the currently selected text
+export function UpdateSettingsValue() {
+  const activeText = document.querySelector(".active-text");
+  // change the font-family value to the style of the selected text element
+  const fontstyle = getComputedStyle(activeText).fontFamily.replace(
+    /['"]+/g,
+    ""
+  );
+  $("#font-fam").val(fontstyle);
+  // change the select element value to the style of the selected element
+  const fontsize = getComputedStyle(activeText).fontSize.replace(/[px]+/g, "");
+  $("#font-size").val(fontsize);
+  // change the select element value to the style of the active text
+  const fontweight = getComputedStyle(activeText).fontWeight;
+  $("#font-weight").val(fontweight);
+
+  const textcolor = $(activeText).css("color");
+  $("#text-color").val(RGBToHex(textcolor));
+
+  const lineHeight = String($(activeText).css("line-height"));
+  if (lineHeight.includes("px")) {
+    $("#line-height").val(lineHeight.replace(/[px]+/g, ""));
+  } else {
+    $("#line-height").val("");
+  }
+
+  // rgb to hex converter
+  function RGBToHex(rgb) {
+    // Choose correct separator
+    let sep = rgb.indexOf(",") > -1 ? "," : " ";
+    // Turn "rgb(r,g,b)" into [r,g,b]
+    rgb = rgb.substr(4).split(")")[0].split(sep);
+
+    let r = (+rgb[0]).toString(16),
+      g = (+rgb[1]).toString(16),
+      b = (+rgb[2]).toString(16);
+
+    if (r.length == 1) r = "0" + r;
+    if (g.length == 1) g = "0" + g;
+    if (b.length == 1) b = "0" + b;
+
+    return "#" + r + g + b;
+  }
+}
+export function Draggables() {
+  // Make the DIV element draggable:
+  document.querySelectorAll(".text-element").forEach((text) => {
+    if (matchMedia("(pointer:fine)").matches) {
+      // Device has a mouse
+      mouseDragElement(text);
+    } else {
+      touchDragElement(text);
+    }
+  });
+
+  function mouseDragElement(elmnt) {
+    var pos1 = 0,
+      pos2 = 0,
+      pos3 = 0,
+      pos4 = 0;
+    elmnt.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+      const activeText = e.target;
+      document.querySelectorAll(".active-text").forEach((textEl) => {
+        textEl.classList.remove("active-text");
+      });
+      // add an active classname to the selected text element
+      activeText.classList.add("active-text");
+
+      UpdateSettingsValue();
+
+      e = e || window.event;
+      e.preventDefault();
+      // get the mouse cursor position at startup:
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+
+      document.onmouseup = closeDragElement;
+      // call a function whenever the cursor moves:
+      document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // calculate the new cursor position:
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+
+      const topPercentage = elmnt.offsetTop - pos2;
+      elmnt.style.top =
+        (topPercentage /
+          $(".image-container").css("height").replace(/[px]+/g, "")) *
+          100 +
+        "%";
+      const leftPercentage = elmnt.offsetLeft - pos1;
+      elmnt.style.left =
+        (leftPercentage /
+          $(".image-container").css("width").replace(/[px]+/g, "")) *
+          100 +
+        "%";
+    }
+    function closeDragElement() {
+      // stop moving when mouse button is released:
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+  function touchDragElement(elmnt) {
+    var pos1 = 0,
+      pos2 = 0,
+      pos3 = 0,
+      pos4 = 0;
+    elmnt.ontouchstart = dragMouseDown;
+
+    function dragMouseDown(e) {
+      const activeText = e.target;
+      document.querySelectorAll(".active-text").forEach((textEl) => {
+        textEl.classList.remove("active-text");
+      });
+      // add an active classname to the selected text element
+      activeText.classList.add("active-text");
+
+      UpdateSettingsValue();
+
+      e = e || window.event;
+      e.preventDefault();
+      // get the mouse cursor position at startup:
+      pos3 = e.changedTouches[0].screenX;
+      pos4 = e.changedTouches[0].screenY;
+
+      document.ontouchend = closeDragElement;
+      // call a function whenever the cursor moves:
+      // document.addEventListener("touchmove", elementDrag, { passive: false });
+      document.ontouchmove = elementDrag;
+    }
+
+    function elementDrag(e) {
+      e = e || window.event;
+      // e.preventDefault();
+      // calculate the new cursor position:
+      pos1 = pos3 - e.changedTouches[0].screenX;
+      pos2 = pos4 - e.changedTouches[0].screenY;
+      pos3 = e.changedTouches[0].screenX;
+      pos4 = e.changedTouches[0].screenY;
+
+      if (e.target.className == "active-text") {
+        const topPercentage = elmnt.offsetTop - pos2;
+        elmnt.style.top =
+          (topPercentage /
+            $(".image-container").css("height").replace(/[px]+/g, "")) *
+            100 +
+          "%";
+        const leftPercentage = elmnt.offsetLeft - pos1;
+        elmnt.style.left =
+          (leftPercentage /
+            $(".image-container").css("width").replace(/[px]+/g, "")) *
+            100 +
+          "%";
+      }
+    }
+    function closeDragElement() {
+      // stop moving when mouse button is released:
+      document.ontouchend = null;
+      document.ontouchmove = null;
+    }
+  }
+}
+// optional upload own image
+// function displayYourImage(e) {
+//   const img = URL.createObjectURL(e.target.files[0]);
+//   updateImage((prev) => {
+//     return { ...prev, randomImage: img };
+//   });
+//   console.log(img);
+// }
