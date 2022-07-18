@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/paper-fli/static/css/main.90061cb4.css",
-    "main.js": "/paper-fli/static/js/main.f1726c6a.js",
-    "static/media/Aurora-1.jpg": "/paper-fli/static/media/Aurora-1.24170ff6a00967faacb7.jpg",
-    "index.html": "/paper-fli/index.html",
-    "main.90061cb4.css.map": "/paper-fli/static/css/main.90061cb4.css.map",
-    "main.f1726c6a.js.map": "/paper-fli/static/js/main.f1726c6a.js.map"
+    "main.css": "/paper-flip/static/css/main.854a918a.css",
+    "main.js": "/paper-flip/static/js/main.f1726c6a.js",
+    "static/media/Aurora-1.jpg": "/paper-flip/static/media/Aurora-1.24170ff6a00967faacb7.jpg",
+    "index.html": "/paper-flip/index.html",
+    "main.854a918a.css.map": "/paper-flip/static/css/main.854a918a.css.map",
+    "main.f1726c6a.js.map": "/paper-flip/static/js/main.f1726c6a.js.map"
   },
   "entrypoints": [
-    "static/css/main.90061cb4.css",
+    "static/css/main.854a918a.css",
     "static/js/main.f1726c6a.js"
   ]
 }
